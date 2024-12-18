@@ -10,8 +10,22 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://codeit-fe10-albaform.vercel.app'),
   title: '알바폼',
   description: '한 곳에서 관리하는 알바 구인 플랫폼',
+  openGraph: {
+    type: 'website',
+    siteName: '알바폼',
+    title: '알바폼',
+    description: '한 곳에서 관리하는 알바 구인 플랫폼',
+    url: 'https://codeit-fe10-albaform.vercel.app',
+    images: {
+      url: '/images/opengraph.png',
+      alt: '알바폼 - 한 곳에서 관리하는 알바 구인 플랫폼',
+      width: 1200,
+      height: 630,
+    },
+  },
 };
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
