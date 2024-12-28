@@ -1,6 +1,5 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import AlbatalkCard from './_components/AlbatalkCard';
 import Pagination from './_components/Pagination';
@@ -63,7 +62,7 @@ const Albatalk = () => {
       setCursorHistory((prev) => prev.slice(0, -1));
     }
   };
-
+  //TODO: 게시물 로딩중일때 UI 추가 필요
   return (
     <div className="w-full flex flex-col">
       <SearchBar
@@ -91,10 +90,11 @@ const Albatalk = () => {
                   key={id}
                   title={title}
                   content={content}
-                  writerNickname={writer.nickname}
+                  writer={writer}
                   createdAt={createdAt}
                   commentCount={commentCount}
                   likeCount={likeCount}
+                  talkId={id}
                 />
               ),
             )}
