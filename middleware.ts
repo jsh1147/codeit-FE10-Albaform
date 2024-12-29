@@ -9,18 +9,38 @@ const denyPaths = {
     '/apply',
     '/applications',
     '/myalbaform',
+    '/albatalk',
     '/addtalk',
     '/mypage',
   ],
 } as const;
+
+const authPaths = [
+  '/signup/applicant',
+  '/signup/owner',
+  '/oauth/signup/applicant/google',
+  '/oauth/signup/applicant/kakao',
+  '/oauth/signup/owner/google',
+  '/oauth/signup/owner/kakao',
+  '/signin/applicant',
+  '/signin/owner',
+];
 
 const middleware = (request: NextRequest) => {
   const userRole = request.cookies.get('user_role')?.value || 'GUEST';
   const paths = denyPaths[userRole as 'APPLICANT' | 'OWNER' | 'GUEST'];
   const nextPath = request.nextUrl.pathname;
 
-  if (paths.some((path) => nextPath.startsWith(path)))
+  if (nextPath.includes('signup') || nextPath.includes('signin')) {
+    if (!authPaths.includes(nextPath)) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
+  if (paths.some((path) => nextPath.startsWith(path))) {
     return NextResponse.redirect(new URL('/', request.url));
+  }
+
   return NextResponse.next();
 };
 
@@ -36,6 +56,7 @@ export const config = {
     '/myapply/:path',
     '/applications/:path',
     '/myalbaform',
+    '/albatalk/:path',
     '/addtalk',
     '/mypage',
   ],

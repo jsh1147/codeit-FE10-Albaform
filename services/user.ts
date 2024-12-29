@@ -18,12 +18,12 @@ export const patchMe = async (body: PatchMeBody) => {
     return acc;
   }, {} as PatchMeBody);
 
-  const response = await instance.post<PatchMeResponse>('/users/me', bodyObj);
+  const response = await instance.patch<PatchMeResponse>('/users/me', bodyObj);
   return response.data;
 };
 
 export const patchPassword = async (body: PatchPasswordBody) => {
-  const response = await instance.post<PatchPasswordResponse>(
+  const response = await instance.patch<PatchPasswordResponse>(
     '/users/me/password',
     body,
   );

@@ -9,11 +9,9 @@ import {
 import { instance } from './axiosInstance';
 
 export const postSignUp = async (body: PostSignUpBody) => {
-  const bodyObj = { ...body, name: '익명' };
-
   const response = await instance.post<PostSignUpResponse>(
     '/auth/sign-up',
-    bodyObj,
+    body,
   );
   return response.data;
 };

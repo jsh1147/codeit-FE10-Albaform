@@ -1,39 +1,37 @@
-'use client';
-
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import RoleNav from './RoleNav';
 
 const AuthHeader = () => {
-  const pathname = usePathname();
+  const headerStyle =
+    'fixed top-0 flex items-center justify-center md:justify-between ' +
+    'w-full h-[54px] md:h-[60px] lg:h-[88px] md:px-[max(72px,calc((100%-1600px)/2))] ' +
+    'bg-gray-50 border-b border-line-100';
 
   return (
-    <header>
-      <Link href="/" replace>
-        <Image src="/icons/logo.svg" width={0} height={0} alt="albaform logo" />
+    <header className={headerStyle}>
+      <Link
+        href="/"
+        replace
+        className="flex items-center gap-2"
+        aria-label="랜딩 페이지 바로가기"
+      >
+        <Image
+          src="/icons/logo.svg"
+          width={0}
+          height={0}
+          alt="알바폼 로고"
+          className="w-[45px] lg:w-15 h-[30px] lg:h-10"
+        />
         <Image
           src="/icons/albaform.svg"
           width={0}
           height={0}
-          alt="albaform text logo"
+          alt="알바폼 문자 로고"
+          className="w-[122px] lg:w-[212px] h-[21px] lg:h-9"
         />
       </Link>
-      <nav>
-        <Link
-          href={pathname.replace('applicant', 'owner')}
-          className={` ${pathname.includes('owner') ? 'font-bold text-orange-200' : ''}`}
-          replace
-        >
-          사장님 전용
-        </Link>
-        <Link
-          href={pathname.replace('owner', 'applicant')}
-          className={`${pathname.includes('applicant') ? 'font-bold text-orange-200' : ''}`}
-          replace
-        >
-          지원자 전용
-        </Link>
-      </nav>
+      <RoleNav isHeader={true} />
     </header>
   );
 };
