@@ -93,3 +93,31 @@ export const LOCATION = {
     required: '가게 이름은 필수 설정입니다.',
   },
 } as const;
+
+export const STEP_1_FIELDS = [
+  'title',
+  'description',
+  'recruitmentEndDate',
+  'recruitmentStartDate',
+  'imageUrls',
+];
+
+export const STEP_2_FIELDS = [
+  'numberOfPositions',
+  'gender',
+  'education',
+  'age',
+  'preferred',
+];
+
+export const STEP_3_FIELDS = [
+  'location',
+  'workStartTime',
+  'workEndTime',
+  'hourlyWage',
+  'isNegotiableWorkDays',
+  'isPublic',
+  'workDays',
+  'workEndDate',
+  'workStartDate',
+];
