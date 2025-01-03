@@ -1,3 +1,41 @@
+export type AlbasOrderBy =
+  | 'mostRecent'
+  | 'highestWage'
+  | 'mostApplied'
+  | 'mostScrapped';
+
+export interface GetAlbasParameters {
+  orderBy: AlbasOrderBy;
+  limit: number;
+  cursor: number;
+  keyword?: string;
+  isRecruiting?: boolean;
+}
+
+export type AlbasFilterType = Pick<
+  GetAlbasParameters,
+  'orderBy' | 'keyword' | 'isRecruiting'
+>;
+
+export type AlbaCardType = Pick<
+  Alba,
+  | 'id'
+  | 'title'
+  | 'recruitmentStartDate'
+  | 'recruitmentEndDate'
+  | 'imageUrls'
+  | 'applyCount'
+  | 'scrapCount'
+  | 'isPublic'
+  | 'createdAt'
+  | 'updatedAt'
+>;
+
+export interface GetAlbasResponse {
+  nextCursor: number | null;
+  data: AlbaCardType[];
+}
+
 export interface PostAlbaBody {
   title: string;
   description: string;

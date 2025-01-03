@@ -1,5 +1,18 @@
 import { instance } from './axiosInstance';
-import { Alba, PostAlbaBody, PostAlbaResponse } from '@/types/alba';
+import {
+  GetAlbasParameters,
+  GetAlbasResponse,
+  Alba,
+  PostAlbaBody,
+  PostAlbaResponse,
+} from '@/types/alba';
+
+export const getAlbas = async (params: GetAlbasParameters) => {
+  const response = await instance.get<GetAlbasResponse>('/forms', {
+    params,
+  });
+  return response.data;
+};
 
 export const postAlba = async (body: PostAlbaBody) => {
   const response = await instance.post<PostAlbaResponse>('/forms', body);
