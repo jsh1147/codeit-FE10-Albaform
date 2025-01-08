@@ -9,6 +9,8 @@ import FloatingActions from '@/app/(with-main-header)/alba/[formId]/_components/
 import ApplicationActions from '@/app/(with-main-header)/alba/[formId]/_components/ApplicationActions';
 import Carousel from '@/app/(with-main-header)/alba/[formId]/_components/Carousel';
 import { getAlbaDetail } from '@/services/alba';
+import RecruitmentClosedModal from '@/app/(with-main-header)/alba/[formId]/_components/RecruitmentClosedModal';
+import { isBeforeToday } from '@/utils/date';
 
 const AlbaFormIdPage = async ({
   params,
@@ -71,6 +73,9 @@ const AlbaFormIdPage = async ({
           </div>
         </div>
       </div>
+      {isBeforeToday(albaDetail.recruitmentEndDate) && (
+        <RecruitmentClosedModal />
+      )}
     </div>
   );
 };
