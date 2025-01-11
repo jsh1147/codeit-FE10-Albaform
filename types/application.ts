@@ -48,3 +48,9 @@ export interface GetApplicationsParameters {
   orderByExperience?: orderByType;
   orderByStatus?: orderByType;
 }
+
+export interface GetGuestApplicationsBody {
+  name: string;
+  phoneNumber: string;
+  password: string;
+}
