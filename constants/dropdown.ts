@@ -118,10 +118,15 @@ export const MENU_OWNER_OPTIONS = [
   { key: 'delete', label: '삭제하기' },
 ];
 
-export const TAB_OPTIONS = [
+export const TAB_OPTIONS_APPLICANT = [
   { key: 'posts', label: '내가 쓴 글' },
   { key: 'comments', label: '내가 쓴 댓글' },
   { key: 'scraps', label: '스크랩' },
+] as const;
+
+export const TAB_OPTIONS_OWNER = [
+  { key: 'posts', label: '내가 쓴 글' },
+  { key: 'comments', label: '내가 쓴 댓글' },
 ] as const;
 
 export const SORT_OPTIONS = [
@@ -133,4 +138,14 @@ export const SORT_OPTIONS = [
 export const TALK_OPTIONS = [
   { key: 'edit', label: '수정하기' },
   { key: 'delete', label: '삭제하기' },
+] as const;
+
+export const SCRAP_OPTIONS = [
+  { key: 'apply', label: '지원하기' },
+  { key: 'cancel', label: '스크랩취소' },
+];
+
+export const MYPAGE_OPTIONS = [
+  { key: 'editInfo', label: '내 정보 수정' },
+  { key: 'updatePassword', label: '비밀번호 변경' },
 ] as const;

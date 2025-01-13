@@ -1,23 +1,25 @@
 'use client';
+
 import { useState } from 'react';
-import { SortOrder } from '@/types/albatalk';
 import Tab from './_components/Tab';
-import SortDropdown from './_components/SortDropdown';
 import { TabKey } from '@/types/mypage';
-import KebabIcon from '@/public/icons/kebab.svg';
 import MyPostList from './_components/posts/MyPostList';
 import MyCommentList from './_components/comments/MyCommentList';
+import MyScrapList from './_components/scraps/MyScrapList';
+import Dropdown from './_components/Dropdown';
+import Button from '@/components/Button';
 
 const Mypage = () => {
-  const [sortOrder, setSortOrder] = useState<SortOrder>('mostRecent');
   const [activeTab, setActiveTab] = useState<TabKey>('posts');
 
   const renderContent = () => {
     switch (activeTab) {
       case 'posts':
-        return <MyPostList sortOrder={sortOrder} />;
+        return <MyPostList />;
       case 'comments':
         return <MyCommentList />;
+      case 'scraps':
+        return <MyScrapList />;
       default:
         return null;
     }
@@ -30,19 +32,29 @@ const Mypage = () => {
           <h1 className="text-black-500 text-xl lg:text-3xl text-left font-semibold">
             마이페이지
           </h1>
-          <button className="bg-white rounded-md flex items-center justify-between gap-3 cursor-pointer">
-            <KebabIcon className="w-6 h-6 lg:w-9 lg:h-9" />
-          </button>
+          <div>
+            <div className="hidden lg:flex gap-3">
+              <Button
+                design="solid"
+                content="내 정보 수정"
+                className="lg:w-[150px]"
+              />
+              <Button
+                design="outlined"
+                content="비밀번호 변경"
+                className="lg:w-[150px]"
+              />
+            </div>
+            <div className="flex lg:hidden">
+              {/* TODO: 모달구현 
+              <Dropdown />  */}
+            </div>
+          </div>
         </div>
         <div className="w-full flex flex-col gap-2">
           <Tab activeTab={activeTab} onTabChange={setActiveTab} />
-          {activeTab === 'posts' && (
-            <div className="w-full flex justify-end">
-              <SortDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />
-            </div>
-          )}
+          {renderContent()}
         </div>
-        {renderContent()}
       </div>
     </div>
   );
