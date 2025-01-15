@@ -64,7 +64,7 @@ const ScrapCard = ({
               imageUrls[0] ? 'object-cover' : 'object-none'
             }`}
           />
-          {!isPublic && <Private />}
+          {!isPublic && <Private id={id} />}
 
           <div className="flex justify-between items-center mb-4 lg:mb-6">
             <div className="flex items-center gap-2">
@@ -76,7 +76,7 @@ const ScrapCard = ({
             </div>
             {/* <MenuDropdown id={id} /> */}
           </div>
-          <h3 className="h-[52px] lg:h-16 font-semibold text-2lg lg:text-xl text-black-500 mb-6 lg:mb-8">
+          <h3 className="h-[52px] lg:h-16 font-semibold text-2lg line-clamp-3 lg:text-xl text-black-500 mb-6 lg:mb-8">
             {title}
           </h3>
           <div className="flex border border-line-100 rounded-xl lg:rounded-2xl font-regular text-xs lg:text-lg text-black-200 py-2.5 lg:py-3">

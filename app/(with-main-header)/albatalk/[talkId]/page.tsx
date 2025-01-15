@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import CommentIcon from '@/public/icons/comment.svg';
 import Image from 'next/image';
@@ -13,15 +14,6 @@ import { EditDropdownAction } from '@/types/albatalk';
 import useGetPostDetail from './_hooks/useGetPostDetail';
 import useDeleteTalk from './_hooks/useDeleteTalk';
 import Loader from '@/components/Loader';
-
-// TODO: RSC 대응하도록 API 고쳐지면 수정!
-// const AlbatalkDetail = async ({
-//   params,
-// }: {
-//   params: Promise<{ talkId: number }>;
-// }) => {
-//   const { talkId } = await params;
-//   const post = await getPostDetail(talkId);
 
 const AlbatalkDetail = () => {
   const { talkId: talkIdStr } = useParams();
@@ -41,6 +33,13 @@ const AlbatalkDetail = () => {
       router.push(`/edittalk/${talkId}`);
     } else if (action === 'delete') {
       deleteMutation();
+    }
+  };
+
+  const scrollToComments = () => {
+    const commentList = document.getElementById('comment-list');
+    if (commentList) {
+      commentList.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
@@ -85,7 +84,12 @@ const AlbatalkDetail = () => {
                   </div>
                   <div className="flex gap-3">
                     <div className="flex gap-1 items-center">
-                      <CommentIcon className="w-6 h-6 lg:w-9 lg:h-9 " />
+                      <button
+                        onClick={scrollToComments}
+                        aria-label="댓글로 이동"
+                      >
+                        <CommentIcon className="w-6 h-6 lg:w-9 lg:h-9" />
+                      </button>
                       <div className="text-gray-500 text-xs md:text-md lg:text-lg font-regular">
                         {totalItemCount}
                       </div>
@@ -117,12 +121,13 @@ const AlbatalkDetail = () => {
                 {post.content}
               </div>
             </div>
-
-            <CommentList
-              talkId={talkId}
-              totalItemCount={totalItemCount}
-              onUpdateTotalItemCount={handleTotalItemCountUpdate}
-            />
+            <div id="comment-list">
+              <CommentList
+                talkId={talkId}
+                totalItemCount={totalItemCount}
+                onUpdateTotalItemCount={handleTotalItemCountUpdate}
+              />
+            </div>
           </div>
         </div>
       )}
