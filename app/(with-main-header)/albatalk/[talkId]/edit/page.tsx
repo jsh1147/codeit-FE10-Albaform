@@ -10,9 +10,9 @@ import Button from '@/components/Button';
 import { PostTalkBody } from '@/types/albatalk';
 import { useEffect } from 'react';
 import usePatchTalk from './_hooks/usePatchTalk';
-import useGetPostDetail from '../../albatalk/[talkId]/_hooks/useGetPostDetail';
+import useGetPostDetail from '../_hooks/useGetPostDetail';
 
-const EditTalk = () => {
+const Edit = () => {
   const { talkId: talkIdStr } = useParams();
   const talkId = Number(talkIdStr);
   const { data: post } = useGetPostDetail(talkId);
@@ -83,17 +83,23 @@ const EditTalk = () => {
             <FileInput setValue={setValue} imageUrl={post?.imageUrl} />
           </div>
 
-          <div className="flex flex-col mt-9 gap-2 md:mt-0 md:flex-row md:relative md:justify-end md:bottom-[685px] lg:bottom-[862px] ">
+          <div className="flex flex-col mt-9 gap-2 md:mt-0 md:flex-row md:relative md:justify-end md:bottom-[685px] lg:bottom-[855px]">
             <Button
               design="outlined"
               content="취소"
               onClick={handleCancel}
-              className="md:w-[101px] md:h-[46px] md:text-md lg:w-[180px] lg:h-[58px]"
+              sizeClass={
+                'w-full md:w-[101px] lg:w-[180px] h-[58px] md:h-[46px] lg:h-[58px] ' +
+                'text-lg md:text-md lg:text-xl'
+              }
             />
             <Button
               type="submit"
               content="등록 하기"
-              className="md:w-[101px] md:h-[46px] text-md lg:w-[180px] lg:h-[58px]"
+              sizeClass={
+                'w-full md:w-[101px] lg:w-[180px] h-[58px] md:h-[46px] lg:h-[58px] ' +
+                'text-lg md:text-md lg:text-xl'
+              }
             />
           </div>
         </form>
@@ -102,4 +108,4 @@ const EditTalk = () => {
   );
 };
 
-export default EditTalk;
+export default Edit;

@@ -20,6 +20,14 @@ export const postAlba = async (body: PostAlbaBody) => {
   return response.data;
 };
 
+export const patchAlba = async (formId: number, body: PostAlbaBody) => {
+  const response = await instance.patch<PostAlbaResponse>(
+    `/forms/${formId}`,
+    body,
+  );
+  return response.data;
+};
+
 export const getAlbaDetail = async (formId: number) => {
   const response = await instance.get<Alba>(`/forms/${formId}`);
 
@@ -32,6 +40,12 @@ export const postAlbaScrap = async (formId: number) => {
   return response.data.isScrapped;
 };
 
+export const deleteAlbaScrap = async (formId: number) => {
+  const response = await instance.delete<Alba>(`/forms/${formId}/scrap`);
+
+  return response.data.isScrapped;
+};
+
 export const getMyCreatedAlbas = async (
   params: GetMyCreatedAlbasParameters,
 ) => {
@@ -40,4 +54,8 @@ export const getMyCreatedAlbas = async (
   });
 
   return response.data;
+};
+
+export const deleteAlba = async (formId: number) => {
+  await instance.delete(`/forms/${formId}`);
 };

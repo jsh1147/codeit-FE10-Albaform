@@ -1,8 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import useMyalbaformStore from '@/store/myalbaform';
+import {
+  useMyCreatedAlbaformStore,
+  useMyAppliedAlbaformStore,
+} from '@/store/myalbaform';
 import DownIcon from '@/public/icons/chevron-down.svg';
+import { checkOwner } from '@/utils/auth';
 
 interface Option {
   key: string | boolean | undefined;
@@ -18,17 +22,23 @@ const Dropdown = ({ name, options }: DropdownProps) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState(options[0]);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const setSearchParams = useMyalbaformStore((state) => state.setSearchParams);
+  const createdStore = useMyCreatedAlbaformStore(
+    (state) => state.setSearchParams,
+  );
+  const appliedStore = useMyAppliedAlbaformStore(
+    (state) => state.setSearchParams,
+  );
 
+  const setSearchParams = checkOwner() ? createdStore : appliedStore;
   const buttonStyle =
     name === 'orderBy'
       ? 'gap-0.5 lg:gap-1 font-semibold text-2sm lg:text-lg text-black-300'
-      : `justify-between w-[88px] lg:w-[126px] border rounded-[4px] font-regular text-xs lg:text-2lg py-1.5 pr-2.5 pl-3 lg:py-2 lg:pr-3 lg:pl-4 ${selectedOption === options[0] ? 'border-gray-100 bg-gray-50 text-black-100' : 'border-orange-300 bg-orange-50 text-orange-300'}  whitespace-nowrap`;
+      : `justify-between w-[88px] lg:w-[126px] border rounded-[4px] font-regular text-xs lg:text-2lg py-1.5 pr-2.5 pl-3 lg:py-2 lg:pr-3 lg:pl-4 ${selectedOption.label === options[0].label ? 'border-gray-100 bg-gray-50 text-black-100' : 'border-orange-300 bg-orange-50 text-orange-300'}  whitespace-nowrap`;
 
   const imageStyle =
     name === 'orderBy'
       ? 'text-gray-200'
-      : `${selectedOption === options[0] ? 'text-gray-200' : 'text-orange-100'}`;
+      : `${selectedOption.label === options[0].label ? 'text-gray-200' : 'text-orange-100'}`;
 
   const dropDownStyle =
     name === 'orderBy'

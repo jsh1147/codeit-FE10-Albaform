@@ -2,23 +2,8 @@ import { getAlbaDetail } from '@/services/alba';
 import Carousel from '@/app/(with-main-header)/alba/[formId]/_components/Carousel';
 import SummarySection from '@/app/(with-main-header)/alba/[formId]/_components/SummarySection';
 import DescriptionSection from '@/app/(with-main-header)/alba/[formId]/_components/DescriptionSection';
-import { ApplicationStatusType } from '@/types/application';
 import ApplicationStatusSection from '@/app/(with-main-header)/applications/[formId]/[applicationId]/_components/ApplicationStatusSection';
 import ApplicationDetail from '@/app/(with-main-header)/applications/[formId]/[applicationId]/_components/ApplicationDetail';
-
-const mock = {
-  applicantId: 0,
-  updatedAt: '2025-01-02T07:06:16.590Z',
-  createdAt: '2025-01-02T07:06:16.590Z',
-  status: 'REJECTED',
-  introduction: 'introduction',
-  resumeName: 'resumeName',
-  resumeId: 266,
-  experienceMonths: 13,
-  phoneNumber: '01044448888',
-  name: '김희진',
-  id: 0,
-};
 
 const ApplicationPage = async ({
   params,
@@ -55,8 +40,8 @@ const ApplicationPage = async ({
           <div className="lg:basis-1/2">
             <div className="mt-10 lg:mt-0">
               <ApplicationStatusSection
-                createdAt={mock.createdAt}
-                status={mock.status as ApplicationStatusType}
+                formId={formId}
+                applicationId={applicationId}
               />
             </div>
           </div>

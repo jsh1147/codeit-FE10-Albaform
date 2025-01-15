@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import useDetectDevice from '@/hooks/useDetectDevice';
 import Image from 'next/image';
 
 interface ModalProps {
@@ -23,8 +22,6 @@ const Modal = ({
   onClose,
   children,
 }: ModalProps) => {
-  const { isMobile } = useDetectDevice();
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // dialog는 기본적으로 esc onClose를 제공하지만 dim close가 되지 않을경우 esc close처리 제외
@@ -35,22 +32,28 @@ const Modal = ({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [allowDimClose]);
 
   return (
     <dialog
       ref={dialogRef}
-      className={`${isMobile ? 'mt-auto mb-0 w-full max-w-[100%]' : ''} rounded-t-xl md:min-w-[350px] lg:min-w-[450px] md:rounded-xl bg-white shadow-3xl open:animate-slideIn open:backdrop:animate-fadeIn backdrop:bg-black-500 backdrop:bg-opacity-50 ${blurDim ? 'backdrop:backdrop-blur-sm' : ''}`}
+      className={
+        `w-full max-w-[100%] mt-auto mb-0 md:w-fit md:max-w-[auto] md:min-w-[350px] md:mb-auto lg:min-w-[450px] ` +
+        `rounded-t-xl md:rounded-xl bg-white shadow-3xl open:animate-slideIn open:backdrop:animate-fadeIn ` +
+        `backdrop:bg-black-500 backdrop:bg-opacity-50 ${blurDim ? 'backdrop:backdrop-blur-sm' : ''} custom-scrollbar`
+      }
       onClick={allowDimClose ? onClose : undefined}
     >
       <div
         className="p-6 lg:px-10 lg:py-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative">
-          <h3 className="font-semibold text-black-400 text-2lg lg:text-3xl">
-            {title}
-          </h3>
+        <div className={`relative ${hasCloseButton ? '' : 'text-center'}`}>
+          {title && (
+            <h3 className="font-semibold text-black-400 text-2lg lg:text-3xl">
+              {title}
+            </h3>
+          )}
           {hasCloseButton && (
             <button
               className="absolute top-0 right-0 text-gray-500"

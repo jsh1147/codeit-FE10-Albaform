@@ -1,8 +1,10 @@
 'use client';
-import React, { ChangeEvent } from 'react';
+
+import { useEffect, useState, ChangeEvent } from 'react';
 import SearchIcon from '@/public/icons/search.svg';
 import SortDropdown from './SortDropdown';
 import { SortOrder } from '@/types/albatalk';
+import useDebounce from '@/hooks/useDebounce';
 
 interface SearchBarProps {
   searchTerm: string;
@@ -12,6 +14,7 @@ interface SearchBarProps {
   setSortOrder: React.Dispatch<React.SetStateAction<SortOrder>>;
   setCursorHistory: React.Dispatch<React.SetStateAction<number[]>>;
 }
+
 const SearchBar = ({
   searchTerm,
   sortOrder,
@@ -19,10 +22,19 @@ const SearchBar = ({
   setSortOrder,
   setCursorHistory,
 }: SearchBarProps) => {
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>): void => {
-    setSearchTerm(e.target.value);
-    setCursorHistory([0]);
+  const [inputValue, setInputValue] = useState(searchTerm);
+  const debouncedValue = useDebounce(inputValue, 200);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
   };
+
+  useEffect(() => {
+    if (debouncedValue !== searchTerm) {
+      setSearchTerm(debouncedValue);
+      setCursorHistory([0]);
+    }
+  }, [debouncedValue, searchTerm]);
 
   return (
     <div className="flex justify-center md:border-b-2">
@@ -34,8 +46,8 @@ const SearchBar = ({
           <input
             type="text"
             placeholder="검색어를 입력하세요"
-            value={searchTerm}
-            onChange={handleSearch}
+            value={inputValue}
+            onChange={handleInputChange}
             className="w-full pl-2 bg-background-200 focus:outline-none"
           />
         </div>

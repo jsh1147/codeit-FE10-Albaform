@@ -1,13 +1,26 @@
+import { useState } from 'react';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import AlbatalkCard from './AlbatalkCard';
 import useGetMyPosts from '../../_hooks/useGetMyPosts';
 import { SortOrder } from '@/types/albatalk';
-import EmptyPosts from '../EmptyPosts';
+import Empty from '../Empty';
 import Loader from '@/components/Loader';
+import SortDropdown from './SortDropdown';
+import AlbatalkCardSkeleton from './AlbatalkCardSkeleton';
 
 const PAGE_LIMIT = 6;
 
-const MyPostList = ({ sortOrder }: { sortOrder: SortOrder }) => {
+const AlbaCardSkeletons = () =>
+  Array(PAGE_LIMIT)
+    .fill(0)
+    .map((_, idx) => (
+      <div key={idx} className="w-full lg:w-[384px]">
+        <AlbatalkCardSkeleton />
+      </div>
+    ));
+
+const MyPostList = () => {
+  const [sortOrder, setSortOrder] = useState<SortOrder>('mostRecent');
   const {
     data,
     isLoading,
@@ -20,54 +33,42 @@ const MyPostList = ({ sortOrder }: { sortOrder: SortOrder }) => {
     sortOrder: sortOrder,
   });
 
-  const isEmpty = data && data.pages.every((page) => page.data.length === 0);
-
-  if (isLoading) {
-    return (
-      <div className="flex w-full justify-center items-center min-h-[200px]">
-        <Loader />
-      </div>
-    );
-  }
   return (
-    <div className="flex w-full max-w-container-md">
-      {isEmpty ? (
-        <EmptyPosts />
-      ) : (
-        <div className="w-full flex flex-col gap-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:gap-y-12">
+    <div className="flex w-full max-w-container-md justify-center">
+      <div className="w-full flex flex-col gap-4">
+        <div className="w-full flex justify-end">
+          <SortDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />
+        </div>
+
+        {isLoading ? (
+          <div className="w-full flex flex-col gap-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:gap-y-12">
+            <AlbaCardSkeletons />
+          </div>
+        ) : data?.pages[0]?.data?.length ? (
           <InfiniteScroll
             hasNextPage={hasNextPage}
             isLoading={isFetchingNextPage}
             loadNextPage={fetchNextPage}
-            loader={<Loader />}
+            loader={
+              <div className="mt-3">
+                <Loader />
+              </div>
+            }
           >
-            {data?.pages.map(({ data: posts }) =>
-              posts.map(
-                ({
-                  id,
-                  title,
-                  content,
-                  writer,
-                  createdAt,
-                  commentCount,
-                  likeCount,
-                }) => (
-                  <AlbatalkCard
-                    key={id}
-                    title={title}
-                    content={content}
-                    writer={writer}
-                    createdAt={createdAt}
-                    commentCount={commentCount}
-                    likeCount={likeCount}
-                    talkId={id}
-                  />
-                ),
-              ),
-            )}
+            <div className="w-full flex flex-col gap-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:gap-y-12">
+              {data.pages.map((page) =>
+                page.data.map((post) => (
+                  <AlbatalkCard key={post.id} {...post} />
+                )),
+              )}
+            </div>
           </InfiniteScroll>
-        </div>
-      )}
+        ) : (
+          <div className="flex justify-center">
+            <Empty type="post" />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

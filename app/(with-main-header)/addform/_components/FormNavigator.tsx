@@ -1,18 +1,22 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import FormTabs from './FormTabs';
 import FormDropdown from './FormDropdown';
 import StepContent from './StepContent';
 import Button from '@/components/Button';
 import { useTemporarySave } from '@/hooks/useTemporarySave';
 import { PostAlbaBody } from '@/types/alba';
-import { postAlba } from '@/services/alba';
+import { postAlba, patchAlba, getAlbaDetail } from '@/services/alba';
 import { STEP_1_FIELDS, STEP_2_FIELDS, STEP_3_FIELDS } from '@/constants/form';
+import { filterToPostAlbaBody } from '@/utils/filter';
+import DraftLoadModal from './DraftLoadModal';
+import useModal from '@/hooks/useModal';
 
-const FormNavigator = () => {
+const FormNavigator = ({ formId }: { formId?: number }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formKey, setFormKey] = useState(1);
   const [tabStatuses, setTabStatuses] = useState<Record<string, boolean>>({
@@ -20,6 +24,7 @@ const FormNavigator = () => {
     tab2: false,
     tab3: false,
   });
+  const [isContinueWriting, setIsContinueWriting] = useState(false);
   const methods = useForm<PostAlbaBody>({
     defaultValues: {
       imageUrls: [],
@@ -30,6 +35,9 @@ const FormNavigator = () => {
   });
   const { getData, saveData, clearData } = useTemporarySave<PostAlbaBody>();
   const formRef = useRef<{ submit: () => void | null }>(null);
+  const router = useRouter();
+  const { dialogRef, openModal, closeModal } = useModal();
+  const defaultValues = methods.getValues();
   const fieldGroups: Record<string, string[]> = useMemo(
     () => ({
       tab1: STEP_1_FIELDS,
@@ -39,10 +47,24 @@ const FormNavigator = () => {
     [],
   );
 
+  const formFn = async ({
+    formId,
+    body,
+  }: {
+    formId?: number;
+    body: PostAlbaBody;
+  }) => {
+    if (formId) {
+      return await patchAlba(formId, body);
+    }
+    clearData();
+    return await postAlba(body);
+  };
+
   const mutation = useMutation({
-    mutationFn: postAlba,
-    onSuccess: () => {
-      //TODO
+    mutationFn: formFn,
+    onSuccess: (data) => {
+      router.replace(`/alba/${data.id}`);
     },
     onError: (error: Error) => {
       //TODO
@@ -55,15 +77,16 @@ const FormNavigator = () => {
   };
 
   const handleSubmit = (data: PostAlbaBody) => {
-    clearData();
-    mutation.mutate(data);
+    mutation.mutate({ formId, body: data });
   };
 
-  useEffect(() => {
-    const storedData = getData();
-    const defaultValues = methods.getValues();
+  const handleContinueWriting = () => {
+    setIsContinueWriting(true);
+    closeModal();
+  };
 
-    if (storedData) {
+  const initializeFormState = useCallback(
+    (storedData: Partial<PostAlbaBody>) => {
       methods.reset(storedData);
 
       const newTabStatuses: Record<string, boolean> = {};
@@ -87,8 +110,39 @@ const FormNavigator = () => {
 
       setFormKey((prev) => prev + 1);
       setTabStatuses(newTabStatuses);
+    },
+    [fieldGroups],
+  );
+
+  useEffect(() => {
+    if (!formId && getData()) {
+      openModal();
     }
-  }, []);
+  }, [formId]);
+
+  useEffect(() => {
+    if (isContinueWriting) {
+      const storedData = getData();
+      if (storedData) {
+        initializeFormState(storedData);
+      }
+    }
+  }, [isContinueWriting, getData, initializeFormState]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (formId) {
+        const response = await getAlbaDetail(formId);
+        const storedData = filterToPostAlbaBody(response);
+
+        if (storedData) {
+          initializeFormState(storedData);
+        }
+      }
+    };
+
+    loadData();
+  }, [formId, initializeFormState]);
 
   useEffect(() => {
     const subscription = methods.watch((values) => {
@@ -108,7 +162,7 @@ const FormNavigator = () => {
     <FormProvider {...methods}>
       <div
         key={formKey}
-        className="relative w-[375px] lg:w-auto lg:max-w-[640px] mx-auto lg:mx-0 px-6 lg:px-0 lg:ml-[600px]"
+        className="relative w-[375px] lg:w-auto lg:max-w-[640px] mx-auto lg:mx-0 px-6 lg:px-0 lg:ml-[640px]"
       >
         <aside className="flex flex-col justify-between bg-background-200 rounded-3xl lg:fixed lg:top-32 lg:left-36 lg:w-[452px] lg:h-[80vh] lg:p-10">
           <div className="hidden lg:block">
@@ -119,14 +173,16 @@ const FormNavigator = () => {
             />
           </div>
           <div className="absolute top-[calc(100%)] left-1/2 -translate-x-1/2 lg:translate-x-0 flex flex-col gap-2.5 w-full px-6 lg:px-0 py-2.5 lg:py-0 lg:static">
-            <Button
-              design="outlined"
-              content="임시 저장"
-              onClick={handleTemporarySave}
-            />
+            {!formId && (
+              <Button
+                design="outlined"
+                content="임시 저장"
+                onClick={handleTemporarySave}
+              />
+            )}
             <Button
               type="submit"
-              content="등록 하기"
+              content={formId ? '수정하기' : '등록하기'}
               onClick={() => formRef.current?.submit()}
               disabled={!methods.formState.isValid}
             />
@@ -134,12 +190,12 @@ const FormNavigator = () => {
         </aside>
         <div className="flex justify-between items-center">
           <h2 className="font-semibold text-xl lg:text-3xl text-black-500 py-6 lg:py-10">
-            알바폼 만들기
+            알바폼 {formId ? '수정하기' : '만들기'}
           </h2>
           <button
             type="button"
             className="bg-gray-100 rounded-lg font-semibold text-md lg:text-xl text-gray-50 py-2 px-3.5 lg:py-3 lg:px-6"
-            onClick={clearData}
+            onClick={() => router.back()}
           >
             작성취소
           </button>
@@ -157,6 +213,11 @@ const FormNavigator = () => {
           ref={formRef}
         />
       </div>
+      <DraftLoadModal
+        dialogRef={dialogRef}
+        closeModal={closeModal}
+        onClick={handleContinueWriting}
+      />
     </FormProvider>
   );
 };

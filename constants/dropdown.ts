@@ -101,6 +101,14 @@ export const RECRUIT_OPTIONS = [
   { key: false, label: '모집 마감' },
 ];
 
+export const APPLICATION_OPTION = [
+  { key: undefined, label: '전체' },
+  { key: 'REJECTED', label: '거절' },
+  { key: 'INTERVIEW_PENDING', label: '면접 대기' },
+  { key: 'INTERVIEW_COMPLETED', label: '면접 완료' },
+  { key: 'HIRED', label: '채용 완료' },
+];
+
 export const ALBA_ORDERBY_OPTIONS = [
   { key: 'mostRecent', label: '최신순' },
   { key: 'highestWage', label: '시급 높은순' },
@@ -118,10 +126,15 @@ export const MENU_OWNER_OPTIONS = [
   { key: 'delete', label: '삭제하기' },
 ];
 
-export const TAB_OPTIONS = [
+export const TAB_OPTIONS_APPLICANT = [
   { key: 'posts', label: '내가 쓴 글' },
   { key: 'comments', label: '내가 쓴 댓글' },
   { key: 'scraps', label: '스크랩' },
+] as const;
+
+export const TAB_OPTIONS_OWNER = [
+  { key: 'posts', label: '내가 쓴 글' },
+  { key: 'comments', label: '내가 쓴 댓글' },
 ] as const;
 
 export const SORT_OPTIONS = [
@@ -133,4 +146,14 @@ export const SORT_OPTIONS = [
 export const TALK_OPTIONS = [
   { key: 'edit', label: '수정하기' },
   { key: 'delete', label: '삭제하기' },
+] as const;
+
+export const SCRAP_OPTIONS = [
+  { key: 'apply', label: '지원하기' },
+  { key: 'cancel', label: '스크랩취소' },
+];
+
+export const MYPAGE_OPTIONS = [
+  { key: 'editInfo', label: '내 정보 수정' },
+  { key: 'updatePassword', label: '비밀번호 변경' },
 ] as const;
