@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import useModal from '@/hooks/useModal';
 import { MENU_OWNER_OPTIONS } from '@/constants/dropdown';
 
 interface Option {
@@ -10,7 +11,13 @@ interface Option {
   label: string;
 }
 
-const MenuDropdown = ({ id }: { id: number }) => {
+const MenuDropdown = ({
+  id,
+  openModal,
+}: {
+  id: number;
+  openModal: VoidFunction;
+}) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
@@ -19,7 +26,10 @@ const MenuDropdown = ({ id }: { id: number }) => {
     if (option.key === 'modify') {
       router.push(`/alba/${id}/edit`);
     }
-    setIsDropdownVisible(false);
+    if (option.key === 'delete') {
+      openModal();
+      setIsDropdownVisible(false);
+    }
   };
 
   const handleOutsideClick = (e: MouseEvent) => {
