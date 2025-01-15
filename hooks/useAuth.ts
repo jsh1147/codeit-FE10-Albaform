@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { User } from '@/types/user';
 import { useUserStore } from '@/store/user';
 import { postSignUp, postSignIn } from '@/services/auth';
-import { FEInstance } from '@/services/axiosInstance';
+import { postCookies, deleteCookies } from '@/services/cookie';
 
 type SignUpParameters = Pick<User, 'email' | 'password' | 'name' | 'role'>;
 type SignInParameters = Pick<User, 'email' | 'password'>;
@@ -22,14 +22,14 @@ export const useAuth = () => {
         refreshToken: data.refreshToken,
         userRole: data.user.role,
       };
-      await FEInstance.post('/api/auth', body);
+      await postCookies(body);
       setUser(data.user);
     },
     [setUser],
   );
 
   const signOut = useCallback(async () => {
-    await FEInstance.delete('/api/auth');
+    await deleteCookies();
     setUser(null);
   }, [setUser]);
 
