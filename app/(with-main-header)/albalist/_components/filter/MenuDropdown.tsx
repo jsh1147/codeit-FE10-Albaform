@@ -1,44 +1,74 @@
+'use client';
+
 import { useRouter } from 'next/navigation';
+import { getApplications } from '@/services/application';
+import { postAlbaScrap } from '@/services/alba';
 import { useUserStore } from '@/store/user';
-import { UserRole } from '@/types/user';
+import useModal from '@/hooks/useModal';
 import {
-  MENU_APPLICANT_OPTIONS,
   MENU_OWNER_OPTIONS,
+  MENU_APPLICANT_OPTIONS,
 } from '@/constants/dropdown';
 import Dropdown, { Option } from './Dropdown';
+import DeleteAlbaModal from '../DeleteAlbaModal';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 
 const MenuDropdown = ({ albaId }: { albaId: number }) => {
-  const user = useUserStore((state) => state.user);
+  const queryClient = useQueryClient();
+  const { isGuest, isOwner } = useUserStore((state) => state);
+  const { dialogRef, openModal, closeModal } = useModal();
   const { push } = useRouter();
 
-  const handleDropdownSelect = (option: Option) => {
+  const handleDropdownSelect = async (option: Option) => {
     switch (option.key) {
       case 'apply':
         push(`/apply/${albaId}`);
         break;
       case 'scrap':
-        // Scrap
+        try {
+          await postAlbaScrap(albaId);
+          queryClient.invalidateQueries({ queryKey: ['forms'] });
+          toast.success('알바폼을 스크랩하였습니다.');
+        } catch {
+          toast.error('이미 스크랩한 알바폼입니다.');
+        }
         break;
       case 'modify':
-        // push ModifyPage
+        try {
+          await getApplications({ formId: albaId, params: { limit: 1 } });
+          push(`/alba/${albaId}/edit`);
+        } catch {
+          toast.error('본인의 알바폼만 수정 가능합니다.');
+        }
         break;
       case 'delete':
-        // open DeleteModal
+        try {
+          await getApplications({ formId: albaId, params: { limit: 1 } });
+          openModal();
+        } catch {
+          toast.error('본인의 알바폼만 삭제 가능합니다.');
+        }
         break;
     }
   };
 
-  if (!user) return;
+  if (isGuest !== false) return;
   return (
-    <Dropdown
-      type="menu"
-      options={
-        user.role === UserRole.applicant
-          ? MENU_APPLICANT_OPTIONS
-          : MENU_OWNER_OPTIONS
-      }
-      onSelect={handleDropdownSelect}
-    />
+    <>
+      <Dropdown
+        type="menu"
+        options={isOwner ? MENU_OWNER_OPTIONS : MENU_APPLICANT_OPTIONS}
+        onSelect={handleDropdownSelect}
+      />
+      {isOwner && (
+        <DeleteAlbaModal
+          formId={albaId}
+          dialogRef={dialogRef}
+          closeModal={closeModal}
+        />
+      )}
+    </>
   );
 };
 

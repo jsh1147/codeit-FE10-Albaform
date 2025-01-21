@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { MouseEvent, useEffect } from 'react';
 import Image from 'next/image';
 
 interface ModalProps {
@@ -22,6 +22,11 @@ const Modal = ({
   onClose,
   children,
 }: ModalProps) => {
+  const handleDialogClick = (event: MouseEvent<HTMLDialogElement>) => {
+    event.preventDefault();
+    if (allowDimClose) onClose();
+  };
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // dialog는 기본적으로 esc onClose를 제공하지만 dim close가 되지 않을경우 esc close처리 제외
@@ -40,13 +45,16 @@ const Modal = ({
       className={
         `w-full max-w-[100%] mt-auto mb-0 md:w-fit md:max-w-[auto] md:min-w-[350px] md:mb-auto lg:min-w-[450px] ` +
         `rounded-t-xl md:rounded-xl bg-white shadow-3xl open:animate-slideIn open:backdrop:animate-fadeIn ` +
-        `backdrop:bg-black-500 backdrop:bg-opacity-50 ${blurDim ? 'backdrop:backdrop-blur-sm' : ''} custom-scrollbar`
+        `backdrop:bg-black-500 backdrop:bg-opacity-50 ${blurDim ? 'backdrop:backdrop-blur-sm' : ''}`
       }
-      onClick={allowDimClose ? onClose : undefined}
+      onClick={handleDialogClick}
     >
       <div
-        className="p-6 lg:px-10 lg:py-8"
-        onClick={(e) => e.stopPropagation()}
+        className="max-h-[90vh] p-6 lg:px-10 lg:py-8 overflow-auto custom-scrollbar"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
       >
         <div className={`relative ${hasCloseButton ? '' : 'text-center'}`}>
           {title && (

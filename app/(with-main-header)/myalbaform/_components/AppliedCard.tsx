@@ -6,9 +6,9 @@ import { getResumeFile } from '@/services/resumeFile';
 import { getRecruitingStatus } from '@/utils/card';
 import { format } from '@/utils/date';
 import { applicationStatus, ApplicationCardType } from '@/types/application';
+import { toast } from 'react-toastify';
 
 const AppliedCard = ({
-  id,
   resumeId,
   resumeName,
   status,
@@ -28,13 +28,13 @@ const AppliedCard = ({
     try {
       await getResumeFile(resumeId, resumeName);
     } catch {
-      alert('이력서 다운로드 실패!');
+      toast.error('이력서 다운로드에 실패했습니다');
     }
   };
 
   return (
     <Link
-      href={`alba/${id}`}
+      href={`alba/${form.id}`}
       className="flex flex-col gap-5 lg:gap-6 w-[375px] lg:w-[477px] border border-line-100 rounded-lg p-[23px] lg:py-[29px] hover:-translate-y-2.5 transition duration-200"
     >
       <div className="flex justify-between items-center text-xs lg:text-lg">

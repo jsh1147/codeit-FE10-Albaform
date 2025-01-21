@@ -2,6 +2,7 @@
 import { useParams } from 'next/navigation';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
+import { useUserStore } from '@/store/user';
 import Textarea from './_components/Textarea';
 import Input from './_components/Input';
 import FileInput from './_components/FileInput';
@@ -16,7 +17,9 @@ const Edit = () => {
   const { talkId: talkIdStr } = useParams();
   const talkId = Number(talkIdStr);
   const { data: post } = useGetPostDetail(talkId);
+  const user = useUserStore((state) => state.user);
   const router = useRouter();
+  if (isNaN(talkId)) router.replace('/404');
   const {
     register,
     handleSubmit,
@@ -46,8 +49,16 @@ const Edit = () => {
     router.push(`/albatalk/${talkId}`);
   };
 
+  useEffect(() => {
+    if (post && user) {
+      if (post?.writer.id !== user?.id) {
+        router.replace('/404');
+      }
+    }
+  }, [post, user]);
+
   return (
-    <div className="flex flex-col gap-9 mt-4 md:mt-6 lg:my-[40px]">
+    <div className="flex max-w-container flex-col gap-9 mt-4 md:mt-6 lg:my-[40px] lg:px-[72px]">
       <div className="flex flex-col gap-4">
         <div className="py-4 md:py-6 lg:py-10 border-b border-gray-400">
           <h1 className="text-black-400 text-2lg md:text-xl lg:text-2xl font-semibold">
@@ -95,7 +106,7 @@ const Edit = () => {
             />
             <Button
               type="submit"
-              content="등록 하기"
+              content="수정 하기"
               sizeClass={
                 'w-full md:w-[101px] lg:w-[180px] h-[58px] md:h-[46px] lg:h-[58px] ' +
                 'text-lg md:text-md lg:text-xl'

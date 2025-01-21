@@ -5,12 +5,12 @@ import { useParams } from 'next/navigation';
 import { UserRoleLowerCase } from '@/types/user';
 import SignUpHeadSection from './_components/SignUpHeadSection';
 import SignUpFormSection from './_components/SignUpFormSection';
-import SocialSignUpSection from './_components/SocialSignUpSection';
+import SocialSection from '../../_components/SocialSection';
 import InformationHeadSection from './_components/InformationHeadSection';
 import InformationFormSection from './_components/InformationFormSection';
 
 const SignUpPage = () => {
-  const { userRole } = useParams();
+  const userRole = useParams()['userRole'] as UserRoleLowerCase;
   const [isSignUp, setIsSignUp] = useState(true);
 
   const handleSignUpFormSubmit = () => {
@@ -19,12 +19,12 @@ const SignUpPage = () => {
 
   return isSignUp ? (
     <>
-      <SignUpHeadSection userRole={userRole as UserRoleLowerCase} />
+      <SignUpHeadSection userRole={userRole} />
       <SignUpFormSection
         userRole={userRole as UserRoleLowerCase}
         onSubmit={handleSignUpFormSubmit}
       />
-      <SocialSignUpSection />
+      <SocialSection userRole={userRole} type="회원가입" />
     </>
   ) : (
     <>

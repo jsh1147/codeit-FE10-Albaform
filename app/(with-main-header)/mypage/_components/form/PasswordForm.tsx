@@ -11,6 +11,7 @@ import {
 } from '@/constants/form';
 import FormField from '@/app/(with-auth-header)/_components/FormField';
 import Button from '@/components/Button';
+import { toast } from 'react-toastify';
 
 interface PasswordFormData {
   currentPassword: string;
@@ -32,7 +33,8 @@ const PasswordForm = ({ closeModal }: PasswordFormProps) => {
     handleSubmit,
     formState: { isValid, errors },
     setError,
-    watch,
+    clearErrors,
+    reset,
   } = useForm<PasswordFormData>({ mode: 'onTouched' });
 
   const signUpSubmit: SubmitHandler<PasswordFormData> = async (data, event) => {
@@ -43,8 +45,8 @@ const PasswordForm = ({ closeModal }: PasswordFormProps) => {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       });
-
-      window.alert('비밀번호가 변경되었습니다!');
+      reset();
+      toast.success('비밀번호가 변경되었습니다!');
       closeModal();
     } catch (e) {
       const error = e as AxiosError<{ message: string }>;
@@ -70,6 +72,19 @@ const PasswordForm = ({ closeModal }: PasswordFormProps) => {
             value: PASSWORD.format.minLength,
             message: PASSWORD.message.minLength,
           },
+          validate: {
+            checkNewPassword: (value, values) => {
+              const newPassword = values.newPassword;
+              if (newPassword) {
+                if (newPassword === value)
+                  setError('newPassword', {
+                    message: PASSWORD_EDIT.message.equal,
+                  });
+                else clearErrors('newPassword');
+              }
+              return true;
+            },
+          },
         })}
         error={errors.currentPassword}
         design="outlined"
@@ -93,8 +108,20 @@ const PasswordForm = ({ closeModal }: PasswordFormProps) => {
             message: PASSWORD.message.pattern,
           },
           validate: {
-            value: (value) =>
-              value !== watch('currentPassword') || PASSWORD_EDIT.message.equal,
+            checkPasswordConfirm: (value, values) => {
+              const passwordConfirmation = values.passwordConfirmation;
+              if (passwordConfirmation) {
+                if (passwordConfirmation !== value)
+                  setError('passwordConfirmation', {
+                    message: PASSWORD_CONFIRMATION.message.notEqual,
+                  });
+                else clearErrors('passwordConfirmation');
+              }
+              return true;
+            },
+
+            isNotEqual: (value, values) =>
+              value !== values.currentPassword || PASSWORD_EDIT.message.equal,
           },
         })}
         error={errors.newPassword}
@@ -110,8 +137,8 @@ const PasswordForm = ({ closeModal }: PasswordFormProps) => {
             message: PASSWORD_CONFIRMATION.message.required,
           },
           validate: {
-            value: (value) =>
-              value === watch('newPassword') ||
+            isEqual: (value, values) =>
+              value === values.newPassword ||
               PASSWORD_CONFIRMATION.message.notEqual,
           },
         })}
@@ -119,7 +146,14 @@ const PasswordForm = ({ closeModal }: PasswordFormProps) => {
         design="outlined"
       />
       <div className="flex gap-3 mt-6 lg:mt-8">
-        <Button onClick={() => closeModal()} content="취소" design="outlined" />
+        <Button
+          onClick={() => {
+            reset();
+            closeModal();
+          }}
+          content="취소"
+          design="outlined"
+        />
         <Button
           type="submit"
           content="변경하기"

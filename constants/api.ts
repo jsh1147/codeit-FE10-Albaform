@@ -5,14 +5,20 @@ export const FE_BASE_URL =
     ? 'https://www.albaform.store'
     : 'http://localhost:3000';
 
+export const OAUTH_REDIRECT_URI = `${FE_BASE_URL}/oauth/kakao`;
+
+export const OAUTH_KAKAO_URL =
+  'https://kauth.kakao.com/oauth/authorize?' +
+  `client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&` +
+  `redirect_uri=${OAUTH_REDIRECT_URI}&` +
+  'response_type=code';
+
 export const NON_AUTH_APIS = [
   { method: 'post', regExp: /^\/auth/ },
   { method: 'post', regExp: /^\/oauth/ },
   { method: 'get', regExp: /^\/posts$/ },
-  { method: 'get', regExp: /^\/posts\/[0-9]+$/ },
   { method: 'get', regExp: /^\/forms$/ },
   { method: 'post', regExp: /^\/resume\/upload$/ },
-  { method: 'post', regExp: /^\/forms\/[0-9]+\/applications$/ },
   { method: 'post', regExp: /^\/forms\/[0-9]+\/my-application\/verify$/ },
 ] as const;
 

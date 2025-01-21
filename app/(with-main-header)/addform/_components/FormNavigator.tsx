@@ -2,21 +2,25 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import FormTabs from './FormTabs';
 import FormDropdown from './FormDropdown';
 import StepContent from './StepContent';
 import Button from '@/components/Button';
+import usePostAlba from '../_hooks/usePostAlba';
+import useModal from '@/hooks/useModal';
 import { useTemporarySave } from '@/hooks/useTemporarySave';
 import { PostAlbaBody } from '@/types/alba';
-import { postAlba, patchAlba, getAlbaDetail } from '@/services/alba';
 import { STEP_1_FIELDS, STEP_2_FIELDS, STEP_3_FIELDS } from '@/constants/form';
-import { filterToPostAlbaBody } from '@/utils/filter';
 import DraftLoadModal from './DraftLoadModal';
-import useModal from '@/hooks/useModal';
+import Loader from '@/components/Loader';
 
-const FormNavigator = ({ formId }: { formId?: number }) => {
+interface FormNavigatorProps {
+  formId?: number;
+  albaDetail?: PostAlbaBody;
+}
+
+const FormNavigator = ({ formId, albaDetail }: FormNavigatorProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formKey, setFormKey] = useState(1);
   const [tabStatuses, setTabStatuses] = useState<Record<string, boolean>>({
@@ -37,6 +41,7 @@ const FormNavigator = ({ formId }: { formId?: number }) => {
   const formRef = useRef<{ submit: () => void | null }>(null);
   const router = useRouter();
   const { dialogRef, openModal, closeModal } = useModal();
+  const { mutateAsync, isPending } = usePostAlba();
   const defaultValues = methods.getValues();
   const fieldGroups: Record<string, string[]> = useMemo(
     () => ({
@@ -47,42 +52,30 @@ const FormNavigator = ({ formId }: { formId?: number }) => {
     [],
   );
 
-  const formFn = async ({
-    formId,
-    body,
-  }: {
-    formId?: number;
-    body: PostAlbaBody;
-  }) => {
-    if (formId) {
-      return await patchAlba(formId, body);
-    }
-    clearData();
-    return await postAlba(body);
-  };
-
-  const mutation = useMutation({
-    mutationFn: formFn,
-    onSuccess: (data) => {
-      router.replace(`/alba/${data.id}`);
-    },
-    onError: (error: Error) => {
-      //TODO
-    },
-  });
-
   const handleTemporarySave = () => {
     const currentValues = methods.getValues();
     saveData(currentValues);
   };
 
-  const handleSubmit = (data: PostAlbaBody) => {
-    mutation.mutate({ formId, body: data });
+  const handleSubmit = async (data: PostAlbaBody) => {
+    try {
+      await mutateAsync({ formId, data });
+      clearData();
+    } catch (error) {
+      throw error;
+    }
   };
 
   const handleContinueWriting = () => {
     setIsContinueWriting(true);
     closeModal();
+  };
+
+  const buttonContent = () => {
+    if (isPending) {
+      return <Loader sizeClass="w-6 h-6 lg:w-9 lg:h-9" />;
+    }
+    return formId ? '수정하기' : '등록하기';
   };
 
   const initializeFormState = useCallback(
@@ -115,12 +108,6 @@ const FormNavigator = ({ formId }: { formId?: number }) => {
   );
 
   useEffect(() => {
-    if (!formId && getData()) {
-      openModal();
-    }
-  }, [formId]);
-
-  useEffect(() => {
     if (isContinueWriting) {
       const storedData = getData();
       if (storedData) {
@@ -131,18 +118,19 @@ const FormNavigator = ({ formId }: { formId?: number }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      if (formId) {
-        const response = await getAlbaDetail(formId);
-        const storedData = filterToPostAlbaBody(response);
+      if (formId && albaDetail) {
+        initializeFormState(albaDetail);
+        return;
+      }
 
-        if (storedData) {
-          initializeFormState(storedData);
-        }
+      if (getData()) {
+        openModal();
+        return;
       }
     };
 
     loadData();
-  }, [formId, initializeFormState]);
+  }, [formId, albaDetail, getData, initializeFormState]);
 
   useEffect(() => {
     const subscription = methods.watch((values) => {
@@ -182,9 +170,9 @@ const FormNavigator = ({ formId }: { formId?: number }) => {
             )}
             <Button
               type="submit"
-              content={formId ? '수정하기' : '등록하기'}
+              content={buttonContent()}
               onClick={() => formRef.current?.submit()}
-              disabled={!methods.formState.isValid}
+              disabled={isPending || !methods.formState.isValid}
             />
           </div>
         </aside>
@@ -194,7 +182,7 @@ const FormNavigator = ({ formId }: { formId?: number }) => {
           </h2>
           <button
             type="button"
-            className="bg-gray-100 rounded-lg font-semibold text-md lg:text-xl text-gray-50 py-2 px-3.5 lg:py-3 lg:px-6"
+            className="bg-gray-100 rounded-lg font-semibold text-md lg:text-xl text-gray-50 py-2 px-3.5 lg:py-3 lg:px-6 hover:bg-gray-200 transition duration-300"
             onClick={() => router.back()}
           >
             작성취소

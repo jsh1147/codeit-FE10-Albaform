@@ -15,6 +15,7 @@ import FormField from '@/app/(with-auth-header)/_components/FormField';
 import Button from '@/components/Button';
 import ProfileImageInput from '@/app/(with-auth-header)/_components/ProfileImageInput';
 import { useUserStore } from '@/store/user';
+import { toast } from 'react-toastify';
 
 const profileFormField = [
   'name',
@@ -64,11 +65,12 @@ const ProfileForm = ({ closeModal, user }: ProfileFormProps) => {
     try {
       const updatedData = await mutateAsync(data);
       setUser(updatedData);
-      window.alert('프로필이 수정되었습니다!');
+      methods.reset();
+      toast.success('프로필이 수정되었습니다!');
       closeModal();
       document.location.reload();
     } catch {
-      window.alert('오류가 발생했습니다.\n확인 후 다시 시도해 주세요.');
+      toast.error('오류가 발생했습니다.\n확인 후 다시 시도해 주세요.');
     }
   };
 
@@ -199,7 +201,10 @@ const ProfileForm = ({ closeModal, user }: ProfileFormProps) => {
         )}
         <div className="flex gap-3 mt-6 lg:mt-8">
           <Button
-            onClick={() => closeModal()}
+            onClick={() => {
+              methods.reset();
+              closeModal();
+            }}
             content="취소"
             design="outlined"
           />
