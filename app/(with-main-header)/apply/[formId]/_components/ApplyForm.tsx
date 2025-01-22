@@ -31,6 +31,7 @@ const defaultValues = {
 } as const;
 
 type ApplyFormFields = typeof defaultValues;
+const keysToInvalidate = ['myAlbas', 'forms'];
 
 const ApplyForm = () => {
   const { dialogRef, openModal, closeModal } = useModal();
@@ -47,6 +48,9 @@ const ApplyForm = () => {
 
   const { mutate, isPending } = usePostApplication();
 
+  const isSubmitDisabled =
+    !methods.formState.isValid || isPending || !methods.getValues('resumeId');
+
   const formSubmit: SubmitHandler<ApplyFormFields> = async (data, event) => {
     event?.preventDefault();
     mutate(
@@ -60,7 +64,9 @@ const ApplyForm = () => {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ['forms'] });
+          keysToInvalidate.forEach((key) => {
+            queryClient.invalidateQueries({ queryKey: [key] });
+          });
           clearData();
           toast.success('알바폼에 지원했습니다!');
           replace(`/myapply/${formId}`);
@@ -76,7 +82,6 @@ const ApplyForm = () => {
 
   const handleTempButtonClick = () => {
     saveData(methods.getValues());
-    toast.success('지원서를 임시 저장했습니다.');
   };
 
   const handleModalClick = () => {
@@ -225,7 +230,7 @@ const ApplyForm = () => {
             type="submit"
             content="작성 완료"
             design="solid"
-            disabled={!methods.formState.isValid || isPending}
+            disabled={isSubmitDisabled}
           />
         </div>
       </form>

@@ -28,6 +28,7 @@ const ResumeInput = ({ placeholder, className }: ResumeInputProps) => {
     setValue,
     setError,
     clearErrors,
+    trigger,
   } = useFormContext<Record<CustomFieldName, string>>();
   const [name, setName] = useState('');
   const { mutateAsync, isPending } = useMutation({ mutationFn: postResume });
@@ -66,6 +67,7 @@ const ResumeInput = ({ placeholder, className }: ResumeInputProps) => {
       setValue('resumeId', resumeId.toString(), { shouldDirty: true });
       setValue('resumeName', file.name, { shouldDirty: true });
       clearErrors('resumeId');
+      trigger(['resumeId', 'resumeName']);
     } catch (error) {
       const e = error as AxiosError<{ message: string }>;
       const message = e.response ? e.response.data.message : e.message;
@@ -79,6 +81,14 @@ const ResumeInput = ({ placeholder, className }: ResumeInputProps) => {
       });
       return;
     }
+  };
+
+  const handleInputBlur = () => {
+    if (!name)
+      setError('resumeId', {
+        type: 'custom',
+        message: RESUME.message.required,
+      });
   };
 
   const handleRemoveClick = () => {
@@ -111,6 +121,7 @@ const ResumeInput = ({ placeholder, className }: ResumeInputProps) => {
         type="file"
         accept=".pdf, .doc, .docx"
         onChange={handleInputChange}
+        onBlur={handleInputBlur}
         disabled={isPending}
         className="sr-only"
       />
